@@ -1,0 +1,638 @@
+   MeterMaid.rb:
+
+   Index:                                                                     
+    1. Summery                                                                
+    2. Calling MeterMaid                                                      
+    3. Simple Example                                                         
+    4. MeterMaid XML Explained                                                
+    5. <speed>                                                                
+    6. <testinfo>                                                             
+    7. <script>                                                               
+    8. <http>                                                                 
+    9. <results>                                                              
+   10. <asserts>                                                              
+   11. <regex>                                                                
+   12. <data>                                                                 
+   13. <upload>                                                               
+   14. <csv>                                                                  
+   15. <loop>                                                                 
+   16. <controller>                                                           
+   17. <repeat>                                                               
+   18. <timer>                                                                
+
+     ----------------------------------------------------------------------
+
+   * Summery:
+
+     MeterMaid.rb: is a simple Ruby class that takes a very simplified XML    
+     file format, and generates the more complex JMeter XML project. This     
+     class was designed with the thought that a test can be written faster in 
+     a code editor then when using the JMeter GUI. It is not designed to      
+     replace the JMeter GUI at all as it doesn't cover a fraction of JMeter's 
+     functionality.                                                           
+
+     ----------------------------------------------------------------------
+
+   * Calling: MeterMaid.rb
+
+     GenMeter.rb is a simple command line script for using the MeterMaid      
+     class.                                                                   
+     [bash]: ruby GenMeter.rb --help GenMeter.rb Usage: GenMeter.rb           
+     --inputfile="mytest.xml" --outputfile="new-jmeter-test.jmx" Required     
+     Flags: --inputfile: This is the input simple MeterMaid XML file.         
+     --outputfile: This is the newly created Jmeter test. Optional Flags:     
+     --help: Prints this message and exits.                                   
+
+     ----------------------------------------------------------------------
+
+   * MeterMaid: Simple Example Test [tests/google.xml]
+
+     <speed>                                                                  
+        <testinfo>                                                            
+           <name>Google Test</name>                                           
+           <assertlog>/tmp/googleassert.log</assertlog>                       
+           <asserttype>AssertionVisualizer</asserttype>                       
+        </testinfo>                                                           
+                                                                              
+        <http>                                                                
+           <name>Google Home page</name>                                      
+           <domain>google.com</domain>                                        
+           <path>/</path>                                                     
+           <method>GET</method>                                               
+                                                                              
+           <results>                                                          
+              <result_file>/tmp/google.log</result_file>                      
+              <type>SummaryReport</type>                                      
+          </results>                                                          
+                                                                              
+          <asserts type="contains">                                           
+              <name>My assert Name</name>                                     
+              <assert>About +Google</assert>                                  
+          </asserts>                                                          
+        </http>                                                               
+     </speed>                                                                 
+       --------------------------------------------------------------------   
+                                                                              
+     * After processing this test through MeterMaid, and opening it in        
+       Jmeter:                                                                
+
+     ----------------------------------------------------------------------
+
+   * MeterMaid: XML Elements Explained
+   * <speed>
+
+* <speed></speed>: Document Root element.                                                                         
+This is the beginning and ending tag for all MeterMaid test.  All functionality is contained within this XML tag. 
+
+   * <testinfo></testinfo>
+
+     * <testinfo></testinfo>: Basic test information element.                 
+                                                                              
+      <testinfo>                                                              
+         <name>Google Test</name>                                             
+         <assertlog>/tmp/googleassert.log</assertlog>                         
+         <asserttype>AssertionVisualizer</asserttype>                         
+      </testinfo>                                                             
+       --------------------------------------------------------------------   
+                                                                              
+     This is where the basic test information is set for a given project. The 
+     testinfo element supports 3 different child tags: 1.)<name></name>: This 
+     is the JMeter test plan name. 2.)<assertlog></assertlog>: This is the    
+     file where all of the global reporting information gets logged.          
+     3.)<asserttype>: This sets the type of Listener for the test plan. It    
+     can be any of the JMeter Listener types, which can be found by viewing   
+     JMeter test sources and looking at the <ResultCollector>'s guiclass      
+     attribute. Note: Only the name & assertlog tags are required, as         
+     asserttype will be defaulted to "AssertionVisualizer" if not provided in 
+     your MeterMaid test.                                                     
+
+   * <script></script>
+
+     * <script></script>: Allows for loading other scripts in line.           
+                                                                              
+      <speed>                                                                 
+         <testinfo>                                                           
+            <assertlog>/tmp/assert.log</assertlog>                            
+            <name>Suite Test</name>                                           
+         </testinfo>                                                          
+         <script>                                                             
+            <file>tests/google.xml</file>                                     
+            <file>tests/google.xml</file>                                     
+            <file>tests/google.xml</file>                                     
+            <file>tests/google.xml</file>                                     
+            <file>tests/google.xml</file>                                     
+            <file>tests/google.xml</file>                                     
+            <file>tests/google.xml</file>                                     
+            <file>tests/uploadfile.xml</file>                                 
+         </script>                                                            
+      </speed>                                                                
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The script tag allows for reading in other test files inline into the    
+     current test. The tag supports 1 child element which can be use as many  
+     times as needed. 1.)<file></file>: This tag takes a fill file path or a  
+     relative path from where the script is opened to other MeterMaid tests.  
+
+   * <http></http>
+
+     * <http></http>: Basic http element.                                     
+                                                                              
+      <http>                                                                  
+         <name>Google Home page</name>                                        
+         <domain>google.com</domain>                                          
+         <path>/</path>                                                       
+         <method>GET</method>                                                 
+      </http>                                                                 
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The http tag generates a JMeter "HTTP Request". The http element         
+     supports 8 different child tags: 1.)<name></name>: This is the name for  
+     the Http Request. 2.)<domain></domain>: This is the domain to send the   
+     request to. 3.)<path></path>: This is the path for the request.          
+     4.)<method></method>: This is the type of http request. All JMeter       
+     Methods at supported: HEAD, GET, POST, PUT, OPTIONS, TRACE, DELETE.      
+     5.)<results></results>: This adds a results collector to just this test. 
+     See the <results></results> section later in this document for more      
+     information. 6.)<regex></regex>: This adds a Post Processor: Regular     
+     Expression Extractor to this test. See the <regex></regex> section later 
+     in this document for more info. 7.)<data></data>: This allows sending    
+     parameters with the http request. See the <data></data> section later in 
+     this document for more info. 8.)<upload></upload>: This allows uploading 
+     files using POST.                                                        
+
+   * <results></results>
+
+     * <results></results>: Adds a results collector to an http element.      
+                                                                              
+      <http>                                                                  
+         <name>Google Home page</name>                                        
+         <domain>google.com</domain>                                          
+         <path>/</path>                                                       
+         <method>GET</method>                                                 
+                                                                              
+         <results>                                                            
+            <result_file>/tmp/google.log</result_file>                        
+            <type>SummaryReport</type>                                        
+            <name>My tests: SummaryReport</name>                              
+        </results>                                                            
+      </http>                                                                 
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The results tag generates a response collector for a given http element. 
+     This element can only be used inside an http element. The results        
+     element has 3 child tags: 1.)<name></name>: This is the name for the     
+     result collector. 2.)<result_file></result_file>: This is the file to    
+     store these results in. 3.)<type></type>: This is the type of result     
+     collector to use. This can be any of the JMeter Result Collectors, as    
+     named from the <ResultCollector> guiclass attribute.                     
+
+   * <asserts></asserts>
+
+     * <asserts></asserts>: Adds Response Assertion's to an http element.     
+                                                                              
+      <speed>                                                                 
+         <testinfo>                                                           
+            <name>Google Test</name>                                          
+            <assertlog>/tmp/googleassert.log</assertlog>                      
+            <asserttype>AssertionVisualizer</asserttype>                      
+         </testinfo>                                                          
+                                                                              
+         <http>                                                               
+            <name>Google Home page</name>                                     
+            <domain>google.com</domain>                                       
+            <path>/</path>                                                    
+            <method>GET</method>                                              
+                                                                              
+           <asserts type="contains">                                          
+               <name>My assert Name</name>                                    
+               <assert>About +Google</assert>                                 
+           </asserts>                                                         
+         </http>                                                              
+      </speed>                                                                
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The asserts tag generates a JMeter Response Assertion for it's parent    
+     http element. This tag can only be used inside an http element. The      
+     asserts tag has 2 child elements, and 2 attributes. Attributes: 1.)not:  
+     Setting not="false", will cause this assertion to be an assertnot.       
+     Setting this attribute to anything other then "false" will have not      
+     affect. 2.)type: This attribute can be set to either: "contains" or      
+     "matches". See the JMeter documents for greater detail on this feature.  
+     Child Elements: 1.)<name></name>: This sets the name for the Response    
+     Assertion. 2.)<assert></assert>: This is the pattern to test for. Note:  
+     The asserts element can contain as many <assert></assert> elements as    
+     you want. Each assert pattern is tested separately. If a pattern fails,  
+     then further patterns are not checked.                                   
+
+   * <regex></regex>
+
+     * <regex></regex>: Adds a Regular Expression Extractor to an http        
+       element.                                                               
+                                                                              
+      <speed>                                                                 
+         <testinfo>                                                           
+            <name>Google Test</name>                                          
+            <assertlog>/tmp/googleassert.log</assertlog>                      
+            <asserttype>AssertionVisualizer</asserttype>                      
+         </testinfo>                                                          
+                                                                              
+         <http>                                                               
+            <name>Google Home page</name>                                     
+            <domain>google.com</domain>                                       
+            <path>/</path>                                                    
+            <method>GET</method>                                              
+                                                                              
+            <regex>                                                           
+               <refname>REGEX_VAR</refname>                                   
+               <response>body</response>                                      
+               <matchnum>1</matchnum>                                         
+               <name>My About Google Regex</name>                             
+               <template>$1$$2$</template>                                    
+               <expression>(About) +(w+)</expression>                         
+               <defaultvalue>REGEX_ERROR</defaultvalue>                       
+               <type>body</type>                                              
+            </regex>                                                          
+                                                                              
+           <asserts type="contains">                                          
+               <name>Assert Regex: About Google</name>                        
+               <assert>${REGEX_VAR_g1} +${REGEX_VAR_g2}</assert>              
+           </asserts>                                                         
+         </http>                                                              
+      </speed>                                                                
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The regex tag generates a JMeter Regular Expression Extractor for it's   
+     parent http element. This tag can only be used inside an http element.   
+     This tag as 7 child elements.                                            
+     1.)<refname></refname>: This is the name that can be used in JMeter      
+     later to reference the results of the regex. 2.)<type></type>: This is   
+     the http response type to run the expression against, which can be one   
+     of the following: "body", "headers", or "url" 3.)<matchnum></matchnum>:  
+     This indicates which match to use. The regular expression may match      
+     multiple times. 4.)<template></template>: The template used to create a  
+     string from the matches found. This is an arbitrary string with special  
+     elements to refer to groups within the regular expression. The syntax to 
+     refer to a group is: '$1$' to refer to group 1, '$2$' to refer to group  
+     2, etc. $0$ refers to whatever the entire expression matches.            
+     5.)<defaultvalue></defaultvalue>: If the regular expression does not     
+     match, then the reference variable will be set to the default value.     
+     6.)<name></name>: The name to give this expression in JMeter.            
+     7.)<expression></expression>: The regular expression used to parse the   
+     response data. This must contain at least one set of parentheses "()" to 
+     capture a portion of the string, unless using the group $0$. Do not      
+     enclose the expression in / / - unless of course you want to match these 
+     characters as well. Note: For more information about this feature see    
+     the JMeter documentation.                                                
+
+   * <data></data>
+
+     * <data></data>: Adds send parameters to the http request.               
+                                                                              
+      <speed>                                                                 
+         <testinfo>                                                           
+            <name>Var's Post Test</name>                                      
+            <assertlog>/tmp/vars.log</assertlog>                              
+         </testinfo>                                                          
+                                                                              
+         <http>                                                               
+            <method>get</method>                                              
+            <domain>localhost</domain>                                        
+            <path>/post.php</path>                                            
+            <name>Local Host Post Test</name>                                 
+                                                                              
+            <data>                                                            
+               <var name="name">hippie</var>                                  
+            </data>                                                           
+                                                                              
+            <asserts type="contains">                                         
+               <name>Hippie Check</name>                                      
+               <assert>hippie</assert>                                        
+            </asserts>                                                        
+         </http>                                                              
+      </speed>                                                                
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The data tag generates send parameters for an http request. This tag can 
+     only be used inside an http element. This tag as 1 child element.        
+     1.)<var>: Each var tag adds a new send parameter to the http request.    
+     There are no limits to the number of var tags used inside the parent     
+     data tag. This tag as 1 attribute "name" which sets the name of the      
+     param being sent, with the contents in the tag being the value for the   
+     named var.                                                               
+
+   * <upload></upload>
+
+     * <upload></upload>: Adds a file upload to the http request.             
+                                                                              
+      <speed>                                                                 
+         <!--                                                                 
+            This test requires that the php file: tests/php/upload.php        
+            be running on a web server on localhost.                          
+         -->                                                                  
+                                                                              
+         <testinfo>                                                           
+            <name>Upload File Test</name>                                     
+            <assertlog>/tmp/vars.log</assertlog>                              
+         </testinfo>                                                          
+                                                                              
+         <http>                                                               
+            <method>POST</method>                                             
+            <domain>localhost</domain>                                        
+            <path>/upload.php</path>                                          
+            <name>Local Host Post Test</name>                                 
+                                                                              
+            <upload>                                                          
+               <filename>/tmp/foo.log</filename>                              
+               <name_value>uploadedfile</name_value>                          
+               <mimetype>multipart/form-data</mimetype>                       
+            </upload>                                                         
+                                                                              
+            <asserts>                                                         
+               <assert>Found File!</assert>                                   
+            </asserts>                                                        
+         </http>                                                              
+      </speed>                                                                
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The upload tag adds a file upload to an http element. This tag as 3      
+     child elements. 1.)<filename></filename>: This is the full path to the   
+     file to upload. 2.)<name_value></name_value>: This is the name of the    
+     file upload HTML element. 3.)<minetype></mimetype>: This is the mime     
+     type for the upload.                                                     
+
+   * <csv></csv>
+
+     * <csv></csv>: Adds a JMeter CSV Dataset Config.                         
+                                                                              
+      <speed>                                                                 
+         <!--                                                                 
+            This test requires that the php file: tests/php/post.php          
+            be running on a web server on localhost.                          
+                                                                              
+            Also you will need to copy the csv file form:                     
+               tests/data/post-vars-csv-data.csv to the path noted below,     
+               or change the path in this test.                               
+         -->                                                                  
+         <testinfo>                                                           
+            <name>Var's Post Test</name>                                      
+            <assertlog>/tmp/vars.log</assertlog>                              
+         </testinfo>                                                          
+                                                                              
+         <csv>                                                                
+            <name>My CSV Data Set</name>                                      
+            <filename>/tmp/post-vars-csv-data.csv</filename>                  
+            <varnames>first_name</varnames>                                   
+                                                                              
+            <http>                                                            
+               <method>get</method>                                           
+               <domain>localhost</domain>                                     
+               <path>/post.php</path>                                         
+               <name>Local Host Post Test</name>                              
+                                                                              
+               <data>                                                         
+                  <var name="name">${first_name}</var>                        
+               </data>                                                        
+                                                                              
+               <asserts type="contains">                                      
+                  <name>Name Check</name>                                     
+                  <assert>${first_name}</assert>                              
+               </asserts>                                                     
+            </http>                                                           
+                                                                              
+            <http>                                                            
+               <method>get</method>                                           
+               <domain>localhost</domain>                                     
+               <path>/post.php</path>                                         
+               <name>Local Host Post Test</name>                              
+                                                                              
+               <data>                                                         
+                  <var name="name">${first_name}</var>                        
+               </data>                                                        
+                                                                              
+               <asserts type="contains">                                      
+                  <name>Name Check</name>                                     
+                  <assert>${first_name}</assert>                              
+               </asserts>                                                     
+            </http>                                                           
+         </csv>                                                               
+      </speed>                                                                
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The csv tag generates a JMeter CSV Dataset Config element. This tag      
+     supports 3 child elements for it's self, and can contain http, loop, and 
+     controller elements. 1.)<name></name>: This is the name of the JMeter    
+     CSV Dataset Config. 2.)<filename></filename>: This is the full path &    
+     name for the csv data file. 3.)<varnames></varnames>: A list of variable 
+     names (comma-delimited). This is the map for the csv file. Note: For     
+     every line in the csv data file, you will need an http element in the    
+     test, as JMeter needs each test to be contained in it's own thread.      
+     MeterMaid will auto generate the needed threads for each http, loop, and 
+     controller element that it parents. Also the csv data file should not    
+     contain any empty lines, as JMeter's CSV file parser doesn't seem to     
+     support empty lines, or comments.                                        
+
+   * <loop></loop>
+
+     * <loop></loop>: Adds a JMeter Loop Controller.                          
+                                                                              
+      <speed>                                                                 
+         <!--                                                                 
+            This test requires that the php file: tests/php/post.php          
+            be running on a web server on localhost.                          
+         -->                                                                  
+                                                                              
+         <testinfo>                                                           
+            <name>Var's Post Test</name>                                      
+            <assertlog>/tmp/vars.log</assertlog>                              
+         </testinfo>                                                          
+                                                                              
+         <loop>                                                               
+            <count>20</count>                                                 
+            <forever>false</forever>                                          
+            <name>Loop Controller 1</name>                                    
+            <http>                                                            
+               <method>get</method>                                           
+               <domain>localhost</domain>                                     
+               <path>/post.php</path>                                         
+               <name>Local Host Post Test</name>                              
+                                                                              
+               <data>                                                         
+                  <var name="name">hippie</var>                               
+               </data>                                                        
+                                                                              
+               <asserts type="contains">                                      
+                  <name>Hippie Check</name>                                   
+                  <assert>hippie</assert>                                     
+               </asserts>                                                     
+            </http>                                                           
+         </loop>                                                              
+      </speed>                                                                
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The loop tag generates a JMeter Loop Controller. This tag supports 3     
+     child elements for it's self, and can contain only http elements.        
+     1.)<name></name>: The name for the JMeter Loop Controller.               
+     2.)<count></count>: The number on times the loop will be executed.       
+     3.)<forever></forever>: This can be either: "true" or "false". Setting   
+     this to "true" will cause the count to be ignored and the loop will      
+     execute forever.                                                         
+
+   * <controller></controller>
+
+     * <controller></Controller>: Adds a JMeter Throughput Controller         
+                                                                              
+      <meter>                                                                 
+         <testinfo>                                                           
+            <name>Controller Test</name>                                      
+            <assertlog>/tmp/assert.log</assertlog>                            
+         </testinfo>                                                          
+                                                                              
+         <controller>                                                         
+            <name>My Controller</name>                                        
+            <precent>15</precent>                                             
+            <loop>                                                            
+               <count>20</count>                                              
+               <forever>false</forever>                                       
+               <name>Loop Controller 1</name>                                 
+               <http>                                                         
+                  <method>get</method>                                        
+                  <domain>localhost</domain>                                  
+                  <path>/post.php</path>                                      
+                  <name>Local Host Post Test</name>                           
+                  <data>                                                      
+                     <var name="name">hippie</var>                            
+                  </data>                                                     
+                  <asserts type="contains">                                   
+                     <name>Hippie Check</name>                                
+                     <assert>hippie</assert>                                  
+                  </asserts>                                                  
+               </http>                                                        
+            </loop>                                                           
+         </controller>                                                        
+      </meter>                                                                
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The controller tag generates a JMeter Throughput Controller. This tag    
+     supports 2 child elements of it's own, and can parent loop & http        
+     elements. 1.)<name></name>: This is the JMeter name for the controller.  
+     2.)<precent></precent>: A number. for percent execution mode, a number   
+     from 0-100 that indicates the percentage of times the controller will    
+     execute. "50" means the controller will execute during half the          
+     iterations throught the test plan. for total execution mode, the number  
+     indicates the total number of times the controller will execute. Note:   
+     For more information about the JMeter Throughput Controller.             
+
+   * <repeat></repeat>
+
+     * <repeat></Repeat>: Repeats every child it contains                     
+                                                                              
+      <speed>                                                                 
+         <!--                                                                 
+            This test requires that the php file: tests/php/post.php          
+            be running on a web server on localhost.                          
+                                                                              
+            Also you will need to copy the csv file form:                     
+               tests/data/post-vars-csv-data.csv to the path noted below,     
+               or change the path in this test.                               
+         -->                                                                  
+         <testinfo>                                                           
+            <name>Var's Post Test</name>                                      
+            <assertlog>/tmp/vars.log</assertlog>                              
+         </testinfo>                                                          
+                                                                              
+         <csv>                                                                
+            <name>My CSV Data Set</name>                                      
+            <filename>/tmp/post-vars-csv-data.csv</filename>                  
+            <varnames>first_name</varnames>                                   
+                                                                              
+            <repeat>                                                          
+               <http>                                                         
+                  <method>get</method>                                        
+                  <domain>localhost</domain>                                  
+                  <path>/post.php</path>                                      
+                  <name>Local Host Post Test</name>                           
+                                                                              
+                  <data>                                                      
+                     <var name="name">${first_name}</var>                     
+                  </data>                                                     
+                                                                              
+                  <asserts type="contains">                                   
+                     <name>Name Check</name>                                  
+                     <assert>${first_name}</assert>                           
+                  </asserts>                                                  
+               </http>                                                        
+            </repeat>                                                         
+         </csv>                                                               
+      </speed>                                                                
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The repeat tag will repeat all children it contains putting them into    
+     their own new thread group. Repeat can only be used inside a csv tag.    
+     This is a hack to bypass how JMeter handles CSV data. Note: Repeat reads 
+     the parent csv tag's filename element, finds the file and counts how     
+     many lines are in the data file. Once repeat has the number of lines in  
+     the data file it will create a new thread group with all all of the      
+     repeat children parented by the CSV data element. This is designed to    
+     keep you from having to manually add a test for every line of the csv    
+     file.                                                                    
+
+   * <timer></timer>
+
+     * <timer></timer>: Adds a JMeter Gaussian Timer                          
+                                                                              
+      <speed>                                                                 
+         <testinfo>                                                           
+            <name>Google Test</name>                                          
+            <assertlog>/tmp/googleassert.log</assertlog>                      
+            <asserttype>AssertionVisualizer</asserttype>                      
+         </testinfo>                                                          
+                                                                              
+         <timer>                                                              
+            <delay>300</delay>                                                
+            <range>100.0</range>                                              
+            <name>Test-Timer</name>                                           
+         </timer>                                                             
+                                                                              
+         <http>                                                               
+            <name>Google Home page</name>                                     
+            <domain>google.com</domain>                                       
+            <path>/</path>                                                    
+            <method>GET</method>                                              
+                                                                              
+            <asserts type="contains">                                         
+               <name>My assert Name</name>                                    
+               <assert>About +Google</assert>                                 
+            </asserts>                                                        
+                                                                              
+            <results>                                                         
+               <result_file>/tmp/summery-1.log</result_file>                  
+               <type>ViewResultsFullVisualizer</type>                         
+               <name>My Summery Results</name>                                
+            </results>                                                        
+                                                                              
+            <timer>                                                           
+               <delay>300</delay>                                             
+               <range>100.0</range>                                           
+               <name>Http-Timer</name>                                        
+            </timer>                                                          
+         </http>                                                              
+      </speed>                                                                
+                                                                              
+       --------------------------------------------------------------------   
+                                                                              
+     The timer tag will add a JMeter Gaussian Timer to either a test or an    
+     http element. This tag as 3 child elements. 1.)<name></name>: This is    
+     the timer's name. 2.)<delay></delay>: Number of milliseconds to pause in 
+     addition to the random delay. 3.)<range></range>: Deviation in           
+     milliseconds.                                                            

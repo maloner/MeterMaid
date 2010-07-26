@@ -1,0 +1,818 @@
+<html>
+<style type="text/css">
+body 
+{ 
+   margin: 10px;
+   font-family: Monospace;
+   font-size: 14px;
+}
+
+fieldset, table, pre 
+{
+    margin-bottom:0;
+    word-wrap: break-word;
+}
+
+p 
+{
+   margin-top: 10px;
+   margin-bottom: 10px;
+}
+
+textarea
+{
+   font-family: Arial,Verdana,Helvetica,sans-serif;
+}
+
+td
+{
+   text-align: left;
+   vertical-align: top;
+}
+
+.td_code
+{
+   text-align: left;
+   vertical-align: top;
+   border: 1px solid black;
+}
+
+.highlight {
+   background-color: #8888FF;
+}
+
+table 
+{
+   background: #ffff;
+   border: 1px solid black;
+   border-bottom: 1px solid #0000;
+   border-right: 1px solid #0000;
+   color: #0000;
+   padding: 4px;
+   font-size: 11px;
+}
+</style>
+<title>MeterMaid: Readme</title>
+
+<body>
+
+<p>
+<u><b>MeterMaid.rb:</b></u>
+</p>
+
+<p>
+<table width="100%">
+<tr>
+   <td>
+   <b><u>Index:</u></b>
+   <ol>
+      <li><a href="#summery">Summery</a></li>
+      <li><a href="#calling">Calling MeterMaid</a></li>
+      <li><a href="#simpleexample">Simple Example</a></li>
+      <li><a href="#xmldef">MeterMaid XML Explained</a></li>
+      <li><a href="#speed">&lt;speed&gt;</a></li>
+      <li><a href="#testinfo">&lt;testinfo&gt;</a></li>
+      <li><a href="#script">&lt;script&gt;</a></li>
+      <li><a href="#http">&lt;http&gt;</a></li>
+      <li><a href="#results">&lt;results&gt;</a></li>
+      <li><a href="#asserts">&lt;asserts&gt;</a></li>
+      <li><a href="#regex">&lt;regex&gt;</a></li>
+      <li><a href="#data">&lt;data&gt;</a></li>
+      <li><a href="#upload">&lt;upload&gt;</a></li>
+      <li><a href="#csv">&lt;csv&gt;</a></li>
+      <li><a href="#loop">&lt;loop&gt;</a></li>
+      <li><a href="#controller">&lt;controller&gt;</a></li>
+      <li><a href="#repeat">&lt;repeat&gt;</a></li>
+      <li><a href="#timer">&lt;timer&gt;</a></li>
+   </ol>
+   </td>
+</tr>
+</table>
+</p>
+
+<hr></hr>
+
+<p>
+<li><a name="summery"><b>Summery:</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+MeterMaid.rb: is a simple Ruby class that takes a very simplified XML file format, and generates the more complex JMeter XML project.</br></br>
+This class was designed with the thought that a test can be written faster in a code editor then when using the JMeter GUI.  It is not designed to replace the JMeter GUI at all as it doesn't cover a fraction of JMeter's functionality.
+   </td>
+</tr>
+</table>
+</p>
+
+<hr></hr>
+
+<p>
+<li><a name="calling"><b>Calling: MeterMaid.rb</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+GenMeter.rb is a simple command line script for using the MeterMaid class.
+   </td>
+</tr>
+<tr>
+   <td>
+[bash]: ruby GenMeter.rb --help</br>
+GenMeter.rb</br></br>
+Usage:</br>
+   GenMeter.rb --inputfile="mytest.xml" --outputfile="new-jmeter-test.jmx"</br>
+</br>
+Required Flags:</br>
+   --inputfile: This is the input simple MeterMaid XML file.</br>
+</br>
+   --outputfile: This is the newly created Jmeter test.</br>
+</br>
+Optional Flags:</br>
+   --help: Prints this message and exits.</br>
+   </td>
+</tr>
+</table>
+</p>
+
+<hr></hr>
+
+<p>
+<li><a name="simpleexample"><b>MeterMaid:</b></a> Simple Example Test [<a href="tests/google.xml" target="_blank">tests/google.xml</a>]
+</li>
+<table width="100%">
+<tr>
+   <td>
+
+   </td>
+</tr>
+<tr>
+   <td>
+<pre>
+&lt;speed&gt;
+   &lt;testinfo&gt;
+      &lt;name&gt;Google Test&lt;&#47;name&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;googleassert.log&lt;&#47;assertlog&gt;
+      &lt;asserttype&gt;AssertionVisualizer&lt;&#47;asserttype&gt;
+   &lt;&#47;testinfo&gt;
+
+   &lt;http&gt;
+      &lt;name&gt;Google Home page&lt;&#47;name&gt;
+      &lt;domain&gt;google.com&lt;&#47;domain&gt;
+      &lt;path&gt;&#47;&lt;&#47;path&gt;
+      &lt;method&gt;GET&lt;&#47;method&gt;
+
+      &lt;results&gt;
+         &lt;result_file&gt;&#47;tmp&#47;google.log&lt;&#47;result_file&gt;
+         &lt;type&gt;SummaryReport&lt;&#47;type&gt;
+     &lt;&#47;results&gt;
+
+     &lt;asserts type="contains"&gt;
+         &lt;name&gt;My assert Name&lt;&#47;name&gt;
+         &lt;assert&gt;About +Google&lt;&#47;assert&gt;
+     &lt;&#47;asserts&gt;
+   &lt;&#47;http&gt;
+&lt;&#47;speed&gt;
+</pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+   <li>After processing this test through MeterMaid, and opening it in Jmeter:
+   </li>
+   <img src="images/google-jmeter-screenshot.png"></img>
+   </td>
+</tr>
+</table>
+</p>
+
+<hr></hr>
+
+<p>
+<li><a name="xmldef"><b>MeterMaid: XML Elements Explained</b></a></li></br>
+<li><b><a name="speed">&lt;speed&gt;</a></b></li>
+<table width="100%">
+<tr>
+   <td>
+<li><a name="speed"><b>&lt;speed&gt;&lt;&#47;speed&gt;</a></b>: Document Root element.</li>
+   </td>
+</tr>
+<tr>
+   <td>
+   <pre>
+This is the beginning and ending tag for all MeterMaid test.  All functionality is contained within this XML tag.</pre>
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="testinfo"><b>&lt;testinfo&gt;&lt;&#47;testinfo&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+<li>&lt;testinfo&gt;&lt;&#47;testinfo&gt;: Basic test information element.</li>
+<pre>
+&lt;testinfo&gt;
+   &lt;name&gt;Google Test&lt;&#47;name&gt;
+   &lt;assertlog&gt;&#47;tmp&#47;googleassert.log&lt;&#47;assertlog&gt;
+   &lt;asserttype&gt;AssertionVisualizer&lt;&#47;asserttype&gt;
+&lt;&#47;testinfo&gt;
+</pre>
+   </td>
+</tr>
+<tr>
+   <td>
+<hr></hr>
+This is where the basic test information is set for a given project.  The testinfo element supports 3 different child tags:</br></br>
+1.)&lt;name&gt;&lt;&#47;name&gt;: This is the JMeter test plan name.</br>
+2.)&lt;assertlog&gt;&lt;&#47;assertlog&gt;: This is the file where all of the global reporting information gets logged.</br>
+3.)&lt;asserttype&gt;: This sets the type of Listener for the test plan.  It can be any of the JMeter Listener types, which can be found by viewing JMeter test sources and looking at the &lt;ResultCollector&gt;'s guiclass attribute.</br></br>
+Note:
+Only the name &amp; assertlog tags are required, as asserttype will be defaulted to "AssertionVisualizer" if not provided in your MeterMaid test.
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="script"><b>&lt;script&gt;&lt;&#47;script&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+<li>&lt;script&gt;&lt;&#47;script&gt;: Allows for loading other scripts in line.</li>
+   <pre>
+&lt;speed&gt;
+   &lt;testinfo&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;assert.log&lt;&#47;assertlog&gt;
+      &lt;name&gt;Suite Test&lt;&#47;name&gt;
+   &lt;&#47;testinfo&gt;
+   &lt;script&gt;
+      &lt;file&gt;tests&#47;google.xml&lt;&#47;file&gt;
+      &lt;file&gt;tests&#47;google.xml&lt;&#47;file&gt;
+      &lt;file&gt;tests&#47;google.xml&lt;&#47;file&gt;
+      &lt;file&gt;tests&#47;google.xml&lt;&#47;file&gt;
+      &lt;file&gt;tests&#47;google.xml&lt;&#47;file&gt;
+      &lt;file&gt;tests&#47;google.xml&lt;&#47;file&gt;
+      &lt;file&gt;tests&#47;google.xml&lt;&#47;file&gt;
+      &lt;file&gt;tests&#47;uploadfile.xml&lt;&#47;file&gt;
+   &lt;&#47;script&gt; 
+&lt;&#47;speed&gt;
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The script tag allows for reading in other test files inline into the current test.  The tag supports 1 child element which can be use as many times as needed.
+</br></br>
+1.)&lt;file&gt;&lt;&#47;file&gt;: This tag takes a fill file path or a relative path from where the script is opened to other MeterMaid tests.</br>
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="http"><b>&lt;http&gt;&lt;&#47;http&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+   <li>&lt;http&gt;&lt;&#47;http&gt;: Basic http element.</li>
+   <pre>
+&lt;http&gt;
+   &lt;name&gt;Google Home page&lt;&#47;name&gt;
+   &lt;domain&gt;google.com&lt;&#47;domain&gt;
+   &lt;path&gt;&#47;&lt;&#47;path&gt;
+   &lt;method&gt;GET&lt;&#47;method&gt;
+&lt;&#47;http&gt;
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The http tag generates a JMeter "HTTP Request".  The http element supports 8 different child tags:</br></br>
+1.)&lt;name&gt;&lt;&#47;name&gt;: This is the name for the Http Request.</br>
+2.)&lt;domain&gt;&lt;&#47;domain&gt;: This is the domain to send the request to.
+</br>
+3.)&lt;path&gt;&lt;&#47;path&gt;: This is the path for the request.</br>
+4.)&lt;method&gt;&lt;&#47;method&gt;: This is the type of http request.  All JMeter Methods at supported: HEAD, GET, POST, PUT, OPTIONS, TRACE, DELETE.</br>
+5.)&lt;results&gt;&lt;&#47;results&gt;: This adds a results collector to just this test.  See the &lt;results&gt;&lt;&#47;results&gt; section later in this document for more information.</br>
+6.)&lt;regex&gt;&lt;&#47;regex&gt;: This adds a Post Processor: Regular Expression Extractor to this test.  See the &lt;regex&gt;&lt;&#47;regex&gt; section later in this document for more info.</br>
+7.)&lt;data&gt;&lt;&#47;data&gt;: This allows sending parameters with the http request.  See the &lt;data&gt;&lt;&#47;data&gt; section later in this document for more info.</br>
+8.)&lt;upload&gt;&lt;&#47;upload&gt;: This allows uploading files using POST.
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="results"><b>&lt;results&gt;&lt;&#47;results&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+   <li>&lt;results&gt;&lt;&#47;results&gt;: Adds a results collector to an http element.</li>
+   <pre>
+&lt;http&gt;
+   &lt;name&gt;Google Home page&lt;&#47;name&gt;
+   &lt;domain&gt;google.com&lt;&#47;domain&gt;
+   &lt;path&gt;&#47;&lt;&#47;path&gt;
+   &lt;method&gt;GET&lt;&#47;method&gt;
+
+   &lt;results&gt;
+      &lt;result_file&gt;&#47;tmp&#47;google.log&lt;&#47;result_file&gt;
+      &lt;type&gt;SummaryReport&lt;&#47;type&gt;
+      &lt;name&gt;My tests: SummaryReport&lt;&#47;name&gt;
+  &lt;&#47;results&gt;
+&lt;&#47;http&gt;
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The results tag generates a response collector for a given http element.  This element can only be used inside an http element.  The results element has 3 child tags:</br></br>
+1.)&lt;name&gt;&lt;&#47;name&gt;: This is the name for the result collector.</br>
+2.)&lt;result_file&gt;&lt;&#47;result_file&gt;: This is the file to store these results in.</br>
+3.)&lt;type&gt;&lt;&#47;type&gt;: This is the type of result collector to use.  This can be any of the JMeter Result Collectors, as named from the &lt;ResultCollector&gt; guiclass attribute.</br>
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="asserts"><b>&lt;asserts&gt;&lt;&#47;asserts&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+<li>&lt;asserts&gt;&lt;&#47;asserts&gt;: Adds Response Assertion's to an http element.</li>
+   <pre>
+&lt;speed&gt;
+   &lt;testinfo&gt;
+      &lt;name&gt;Google Test&lt;&#47;name&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;googleassert.log&lt;&#47;assertlog&gt;
+      &lt;asserttype&gt;AssertionVisualizer&lt;&#47;asserttype&gt;
+   &lt;&#47;testinfo&gt;
+
+   &lt;http&gt;
+      &lt;name&gt;Google Home page&lt;&#47;name&gt;
+      &lt;domain&gt;google.com&lt;&#47;domain&gt;
+      &lt;path&gt;&#47;&lt;&#47;path&gt;
+      &lt;method&gt;GET&lt;&#47;method&gt;
+
+     &lt;asserts type="contains"&gt;
+         &lt;name&gt;My assert Name&lt;&#47;name&gt;
+         &lt;assert&gt;About +Google&lt;&#47;assert&gt;
+     &lt;&#47;asserts&gt;
+   &lt;&#47;http&gt;
+&lt;&#47;speed&gt;
+   </pre>
+   </td>
+</tr> 
+<tr>
+   <td>
+   <hr></hr>
+The asserts tag generates a JMeter Response Assertion for it's parent http element.  This tag can only be used inside an http element.  The asserts tag has 2 child elements, and 2 attributes.</br></br>
+Attributes:</br>
+1.)not: Setting not="false", will cause this assertion to be an assertnot.  Setting this attribute to anything other then "false" will have not affect.</br>
+2.)type: This attribute can be set to either: "contains" or "matches".  See the JMeter documents for greater detail on this feature.</br></br>
+Child Elements:</br>
+1.)&lt;name&gt;&lt;&#47;name&gt;: This sets the name for the Response Assertion.</br>
+2.)&lt;assert&gt;&lt;&#47;assert&gt;: This is the pattern to test for.</br></br>
+
+Note:</br>
+The asserts element can contain as many &lt;assert&gt;&lt;&#47;assert&gt; elements as you want.  Each assert pattern is tested separately. If a pattern fails, then further patterns are not checked.</br>
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="regex"><b>&lt;regex&gt;&lt;&#47;regex&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+   <li>&lt;regex&gt;&lt;&#47;regex&gt;: Adds a Regular Expression Extractor to an http element.</li>
+   <pre>
+&lt;speed&gt;
+   &lt;testinfo&gt;
+      &lt;name&gt;Google Test&lt;&#47;name&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;googleassert.log&lt;&#47;assertlog&gt;
+      &lt;asserttype&gt;AssertionVisualizer&lt;&#47;asserttype&gt;
+   &lt;&#47;testinfo&gt;
+
+   &lt;http&gt;
+      &lt;name&gt;Google Home page&lt;&#47;name&gt;
+      &lt;domain&gt;google.com&lt;&#47;domain&gt;
+      &lt;path&gt;&#47;&lt;&#47;path&gt;
+      &lt;method&gt;GET&lt;&#47;method&gt;
+
+      &lt;regex&gt;
+         &lt;refname&gt;REGEX_VAR&lt;&#47;refname&gt;
+         &lt;response&gt;body&lt;&#47;response&gt;
+         &lt;matchnum&gt;1&lt;&#47;matchnum&gt;
+         &lt;name&gt;My About Google Regex&lt;&#47;name&gt;
+         &lt;template&gt;$1$$2$&lt;&#47;template&gt;
+         &lt;expression&gt;(About) +(w+)&lt;&#47;expression&gt;
+         &lt;defaultvalue&gt;REGEX_ERROR&lt;&#47;defaultvalue&gt;
+         &lt;type&gt;body&lt;&#47;type&gt;
+      &lt;&#47;regex&gt;
+   
+     &lt;asserts type="contains"&gt;
+         &lt;name&gt;Assert Regex: About Google&lt;&#47;name&gt;
+         &lt;assert&gt;${REGEX_VAR_g1} +${REGEX_VAR_g2}&lt;&#47;assert&gt;
+     &lt;&#47;asserts&gt;
+   &lt;&#47;http&gt;
+&lt;&#47;speed&gt;   
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The regex tag generates a JMeter Regular Expression Extractor for it's parent http element.  This tag can only be used inside an http element.  This tag as 7 child elements.<br></br>
+1.)&lt;refname&gt;&lt;&#47;refname&gt;: This is the name that can be used in JMeter later to reference the results of the regex.</br>
+2.)&lt;type&gt;&lt;&#47;type&gt;: This is the http response type to run the expression against, which can be one of the following: "body", "headers", or "url"</br>
+3.)&lt;matchnum&gt;&lt;&#47;matchnum&gt;: This indicates which match to use. The regular expression may match multiple times.</br>
+4.)&lt;template&gt;&lt;&#47;template&gt;: The template used to create a string from the matches found. This is an arbitrary string with special elements to refer to groups within the regular expression. The syntax to refer to a group is: '$1$' to refer to group 1, '$2$' to refer to group 2, etc. $0$ refers to whatever the entire expression matches.</br>
+5.)&lt;defaultvalue&gt;&lt;&#47;defaultvalue&gt;: If the regular expression does not match, then the reference variable will be set to the default value.</br>
+6.)&lt;name&gt;&lt;&#47;name&gt;: The name to give this expression in JMeter.</br>
+7.)&lt;expression&gt;&lt;&#47;expression&gt;: The regular expression used to parse the response data. This must contain at least one set of parentheses "()" to capture a portion of the string, unless using the group $0$. Do not enclose the expression in &#47; &#47; - unless of course you want to match these characters as well.</br></br>
+Note:</br>
+For more information about this feature see the <a href="http://jakarta.apache.org/jmeter/usermanual/component_reference.html#Response_Assertion" target="_blank">JMeter documentation.</a></br>
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="data"><b>&lt;data&gt;&lt;&#47;data&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+   <li>&lt;data&gt;&lt;&#47;data&gt;: Adds send parameters to the http request.</li>
+   <pre>
+&lt;speed&gt;
+   &lt;testinfo&gt;
+      &lt;name&gt;Var's Post Test&lt;&#47;name&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;vars.log&lt;&#47;assertlog&gt;
+   &lt;&#47;testinfo&gt;
+
+   &lt;http&gt;
+      &lt;method&gt;get&lt;&#47;method&gt;
+      &lt;domain&gt;localhost&lt;&#47;domain&gt;
+      &lt;path&gt;&#47;post.php&lt;&#47;path&gt;
+      &lt;name&gt;Local Host Post Test&lt;&#47;name&gt;
+      
+      &lt;data&gt;
+         &lt;var name="name"&gt;hippie&lt;&#47;var&gt;
+      &lt;&#47;data&gt;
+
+      &lt;asserts type="contains"&gt;
+         &lt;name&gt;Hippie Check&lt;&#47;name&gt;
+         &lt;assert&gt;hippie&lt;&#47;assert&gt;
+      &lt;&#47;asserts&gt;
+   &lt;&#47;http&gt;
+&lt;&#47;speed&gt;
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The data tag generates send parameters for an http request.  This tag can only be used inside an http element.  This tag as 1 child element.</br></br>
+1.)&lt;var&gt;: Each var tag adds a new send parameter to the http request.  There are no limits to the number of var tags used inside the parent data tag.  This tag as 1 attribute "name"  which sets the name of the param being sent, with the contents in the tag being the value for the named var.</br>
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="upload"><b>&lt;upload&gt;&lt;&#47;upload&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+   <li>&lt;upload&gt;&lt;&#47;upload&gt;: Adds a file upload to the http request.</li>
+   <pre>
+&lt;speed&gt;
+   &lt;!--
+      This test requires that the php file: tests&#47;php&#47;upload.php
+      be running on a web server on localhost.
+   --&gt;
+
+   &lt;testinfo&gt;
+      &lt;name&gt;Upload File Test&lt;&#47;name&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;vars.log&lt;&#47;assertlog&gt;
+   &lt;&#47;testinfo&gt;
+
+   &lt;http&gt;
+      &lt;method&gt;POST&lt;&#47;method&gt;
+      &lt;domain&gt;localhost&lt;&#47;domain&gt;
+      &lt;path&gt;&#47;upload.php&lt;&#47;path&gt;
+      &lt;name&gt;Local Host Post Test&lt;&#47;name&gt;
+      
+      &lt;upload&gt;
+         &lt;filename&gt;&#47;tmp&#47;foo.log&lt;&#47;filename&gt;
+         &lt;name_value&gt;uploadedfile&lt;&#47;name_value&gt;
+         &lt;mimetype&gt;multipart&#47;form-data&lt;&#47;mimetype&gt;
+      &lt;&#47;upload&gt;
+
+      &lt;asserts&gt;
+         &lt;assert&gt;Found File!&lt;&#47;assert&gt;
+      &lt;&#47;asserts&gt;
+   &lt;&#47;http&gt;
+&lt;&#47;speed&gt;
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The upload tag adds a file upload to an http element.  This tag as 3 child elements.</br></br>
+1.)&lt;filename&gt;&lt;&#47;filename&gt;: This is the full path to the file to upload.</br>
+2.)&lt;name_value&gt;&lt;&#47;name_value&gt;: This is the name of the file upload HTML element.</br>
+3.)&lt;minetype&gt;&lt;&#47;mimetype&gt;: This is the mime type for the upload.</br>
+   </td>
+</tr>
+</table>
+
+</br>
+<li><a name="csv"><b>&lt;csv&gt;&lt;&#47;csv&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+   <li>&lt;csv&gt;&lt;&#47;csv&gt;: Adds a JMeter CSV Dataset Config.</li>
+   <pre>
+&lt;speed&gt;
+   &lt;!--
+      This test requires that the php file: tests&#47;php&#47;post.php
+      be running on a web server on localhost.
+
+      Also you will need to copy the csv file form:
+         tests&#47;data&#47;post-vars-csv-data.csv to the path noted below,
+         or change the path in this test.
+   --&gt;
+   &lt;testinfo&gt;
+      &lt;name&gt;Var's Post Test&lt;&#47;name&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;vars.log&lt;&#47;assertlog&gt;
+   &lt;&#47;testinfo&gt;
+
+   &lt;csv&gt;
+      &lt;name&gt;My CSV Data Set&lt;&#47;name&gt;
+      &lt;filename&gt;&#47;tmp&#47;post-vars-csv-data.csv&lt;&#47;filename&gt;
+      &lt;varnames&gt;first_name&lt;&#47;varnames&gt;
+
+      &lt;http&gt;
+         &lt;method&gt;get&lt;&#47;method&gt;
+         &lt;domain&gt;localhost&lt;&#47;domain&gt;
+         &lt;path&gt;&#47;post.php&lt;&#47;path&gt;
+         &lt;name&gt;Local Host Post Test&lt;&#47;name&gt;
+         
+         &lt;data&gt;
+            &lt;var name="name"&gt;${first_name}&lt;&#47;var&gt;
+         &lt;&#47;data&gt;
+
+         &lt;asserts type="contains"&gt;
+            &lt;name&gt;Name Check&lt;&#47;name&gt;
+            &lt;assert&gt;${first_name}&lt;&#47;assert&gt;
+         &lt;&#47;asserts&gt;
+      &lt;&#47;http&gt;
+
+      &lt;http&gt;
+         &lt;method&gt;get&lt;&#47;method&gt;
+         &lt;domain&gt;localhost&lt;&#47;domain&gt;
+         &lt;path&gt;&#47;post.php&lt;&#47;path&gt;
+         &lt;name&gt;Local Host Post Test&lt;&#47;name&gt;
+         
+         &lt;data&gt;
+            &lt;var name="name"&gt;${first_name}&lt;&#47;var&gt;
+         &lt;&#47;data&gt;
+
+         &lt;asserts type="contains"&gt;
+            &lt;name&gt;Name Check&lt;&#47;name&gt;
+            &lt;assert&gt;${first_name}&lt;&#47;assert&gt;
+         &lt;&#47;asserts&gt;
+      &lt;&#47;http&gt;
+   &lt;&#47;csv&gt;
+&lt;&#47;speed&gt;
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The csv tag generates a JMeter CSV Dataset Config element.  This tag supports 3 child elements for it's self, and can contain http, loop, and controller elements.</br></br>
+1.)&lt;name&gt;&lt;&#47;name&gt;: This is the name of the JMeter CSV Dataset Config.</br>
+2.)&lt;filename&gt;&lt;&#47;filename&gt;: This is the full path &amp; name for the csv data file.</br>
+3.)&lt;varnames&gt;&lt;&#47;varnames&gt;: A list of variable names (comma-delimited).  This is the map for the csv file.</br></br>
+Note:</br>
+For every line in the csv data file, you will need an http element in the test, as JMeter needs each test to be contained in it's own thread.  MeterMaid will auto generate the needed threads for each http, loop, and controller element that it parents.</br></br>
+Also the csv data file should not contain any empty lines, as JMeter's CSV file parser doesn't seem to support empty lines, or comments.</br>
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="loop"><b>&lt;loop&gt;&lt;&#47;loop&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+    <li>&lt;loop&gt;&lt;&#47;loop&gt;: Adds a JMeter Loop Controller.</li>
+   <pre>
+&lt;speed&gt;
+   &lt;!--
+      This test requires that the php file: tests&#47;php&#47;post.php
+      be running on a web server on localhost.
+   --&gt;
+
+   &lt;testinfo&gt;
+      &lt;name&gt;Var's Post Test&lt;&#47;name&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;vars.log&lt;&#47;assertlog&gt;
+   &lt;&#47;testinfo&gt;
+
+   &lt;loop&gt;
+      &lt;count&gt;20&lt;&#47;count&gt;
+      &lt;forever&gt;false&lt;&#47;forever&gt;
+      &lt;name&gt;Loop Controller 1&lt;&#47;name&gt;
+      &lt;http&gt;
+         &lt;method&gt;get&lt;&#47;method&gt;
+         &lt;domain&gt;localhost&lt;&#47;domain&gt;
+         &lt;path&gt;&#47;post.php&lt;&#47;path&gt;
+         &lt;name&gt;Local Host Post Test&lt;&#47;name&gt;
+         
+         &lt;data&gt;
+            &lt;var name="name"&gt;hippie&lt;&#47;var&gt;
+         &lt;&#47;data&gt;
+
+         &lt;asserts type="contains"&gt;
+            &lt;name&gt;Hippie Check&lt;&#47;name&gt;
+            &lt;assert&gt;hippie&lt;&#47;assert&gt;
+         &lt;&#47;asserts&gt;
+      &lt;&#47;http&gt;
+   &lt;&#47;loop&gt;
+&lt;&#47;speed&gt;
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The loop tag generates a JMeter Loop Controller.  This tag supports 3 child elements for it's self, and can contain only http elements.</br></br>
+1.)&lt;name&gt;&lt;&#47;name&gt;: The name for the JMeter Loop Controller.</br>
+2.)&lt;count&gt;&lt;&#47;count&gt;: The number on times the loop will be executed.</br>
+3.)&lt;forever&gt;&lt;&#47;forever&gt;: This can be either: "true" or "false".  Setting this to "true" will cause the count to be ignored and the loop will execute forever.</br>
+   </td>
+</tr>
+</table>
+</br>
+
+<li><a name="controller"><b>&lt;controller&gt;&lt;&#47;controller&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+   <li>&lt;controller&gt;&lt;&#47;Controller&gt;: Adds a JMeter Throughput Controller</li>
+   <pre>
+&lt;meter&gt;
+   &lt;testinfo&gt;
+      &lt;name&gt;Controller Test&lt;&#47;name&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;assert.log&lt;&#47;assertlog&gt;
+   &lt;&#47;testinfo&gt;
+
+   &lt;controller&gt;
+      &lt;name&gt;My Controller&lt;&#47;name&gt;
+      &lt;precent&gt;15&lt;&#47;precent&gt;
+      &lt;loop&gt;
+         &lt;count&gt;20&lt;&#47;count&gt;
+         &lt;forever&gt;false&lt;&#47;forever&gt;
+         &lt;name&gt;Loop Controller 1&lt;&#47;name&gt;
+         &lt;http&gt;
+            &lt;method&gt;get&lt;&#47;method&gt;
+            &lt;domain&gt;localhost&lt;&#47;domain&gt;
+            &lt;path&gt;&#47;post.php&lt;&#47;path&gt;
+            &lt;name&gt;Local Host Post Test&lt;&#47;name&gt;
+            &lt;data&gt;
+               &lt;var name="name"&gt;hippie&lt;&#47;var&gt;
+            &lt;&#47;data&gt;
+            &lt;asserts type="contains"&gt;
+               &lt;name&gt;Hippie Check&lt;&#47;name&gt;
+               &lt;assert&gt;hippie&lt;&#47;assert&gt;
+            &lt;&#47;asserts&gt;
+         &lt;&#47;http&gt;
+      &lt;&#47;loop&gt;
+   &lt;&#47;controller&gt;
+&lt;&#47;meter&gt;
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The controller tag generates a JMeter Throughput Controller.  This tag supports 2 child elements of it's own, and can parent loop &amp; http elements.</br>
+</br>
+1.)&lt;name&gt;&lt;&#47;name&gt;: This is the JMeter name for the controller.</br>
+2.)&lt;precent&gt;&lt;&#47;precent&gt;: A number. for percent execution mode, a number from 0-100 that indicates the percentage of times the controller will execute. "50" means the controller will execute during half the iterations throught the test plan. for total execution mode, the number indicates the total number of times the controller will execute.</br></br>
+Note:</br>
+For more information about the <A href="http://jakarta.apache.org/jmeter/usermanual/component_reference.html#Throughput_Controller" target="_blank">JMeter Throughput Controller.</a></br>
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="repeat"><b>&lt;repeat&gt;&lt;&#47;repeat&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+   <li>&lt;repeat&gt;&lt;&#47;Repeat&gt;: Repeats every child it contains</li>
+   <pre>
+&lt;speed&gt;
+   &lt;!--
+      This test requires that the php file: tests&#47;php&#47;post.php
+      be running on a web server on localhost.
+
+      Also you will need to copy the csv file form:
+         tests&#47;data&#47;post-vars-csv-data.csv to the path noted below,
+         or change the path in this test.
+   --&gt;
+   &lt;testinfo&gt;
+      &lt;name&gt;Var's Post Test&lt;&#47;name&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;vars.log&lt;&#47;assertlog&gt;
+   &lt;&#47;testinfo&gt;
+
+   &lt;csv&gt;
+      &lt;name&gt;My CSV Data Set&lt;&#47;name&gt;
+      &lt;filename&gt;&#47;tmp&#47;post-vars-csv-data.csv&lt;&#47;filename&gt;
+      &lt;varnames&gt;first_name&lt;&#47;varnames&gt;
+
+      &lt;repeat&gt;
+         &lt;http&gt;
+            &lt;method&gt;get&lt;&#47;method&gt;
+            &lt;domain&gt;localhost&lt;&#47;domain&gt;
+            &lt;path&gt;&#47;post.php&lt;&#47;path&gt;
+            &lt;name&gt;Local Host Post Test&lt;&#47;name&gt;
+            
+            &lt;data&gt;
+               &lt;var name="name"&gt;${first_name}&lt;&#47;var&gt;
+            &lt;&#47;data&gt;
+
+            &lt;asserts type="contains"&gt;
+               &lt;name&gt;Name Check&lt;&#47;name&gt;
+               &lt;assert&gt;${first_name}&lt;&#47;assert&gt;
+            &lt;&#47;asserts&gt;
+         &lt;&#47;http&gt;
+      &lt;&#47;repeat&gt;
+   &lt;&#47;csv&gt;
+&lt;&#47;speed&gt;
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The repeat tag will repeat all children it contains putting them into their own new thread group.  Repeat can only be used inside a csv tag.  This is a hack to bypass how JMeter handles CSV data.</br></br>
+Note:</br>
+Repeat reads the parent csv tag's filename element, finds the file and counts how many lines are in the data file.  Once repeat has the number of lines in the data file it will create a new thread group with all all of the repeat children parented by the CSV data element.</br></br>
+This is designed to keep you from having to manually add a test for every line of the csv file.</br>
+   </td>
+</tr>
+</table>
+</br>
+<li><a name="timer"><b>&lt;timer&gt;&lt;&#47;timer&gt;</b></a></li>
+<table width="100%">
+<tr>
+   <td>
+   <li>&lt;timer&gt;&lt;&#47;timer&gt;: Adds a JMeter Gaussian Timer</li>
+   <pre>
+&lt;speed&gt;
+   &lt;testinfo&gt;
+      &lt;name&gt;Google Test&lt;&#47;name&gt;
+      &lt;assertlog&gt;&#47;tmp&#47;googleassert.log&lt;&#47;assertlog&gt;
+      &lt;asserttype&gt;AssertionVisualizer&lt;&#47;asserttype&gt;
+   &lt;&#47;testinfo&gt;
+
+   &lt;timer&gt;
+      &lt;delay&gt;300&lt;&#47;delay&gt;
+      &lt;range&gt;100.0&lt;&#47;range&gt;
+      &lt;name&gt;Test-Timer&lt;&#47;name&gt;
+   &lt;&#47;timer&gt;
+
+   &lt;http&gt;
+      &lt;name&gt;Google Home page&lt;&#47;name&gt;
+      &lt;domain&gt;google.com&lt;&#47;domain&gt;
+      &lt;path&gt;&#47;&lt;&#47;path&gt;
+      &lt;method&gt;GET&lt;&#47;method&gt;
+
+      &lt;asserts type="contains"&gt;
+         &lt;name&gt;My assert Name&lt;&#47;name&gt;
+         &lt;assert&gt;About +Google&lt;&#47;assert&gt;
+      &lt;&#47;asserts&gt;
+
+      &lt;results&gt;
+         &lt;result_file&gt;&#47;tmp&#47;summery-1.log&lt;&#47;result_file&gt;
+         &lt;type&gt;ViewResultsFullVisualizer&lt;&#47;type&gt;
+         &lt;name&gt;My Summery Results&lt;&#47;name&gt;
+      &lt;&#47;results&gt;
+      
+      &lt;timer&gt;
+         &lt;delay&gt;300&lt;&#47;delay&gt;
+         &lt;range&gt;100.0&lt;&#47;range&gt;
+         &lt;name&gt;Http-Timer&lt;&#47;name&gt;
+      &lt;&#47;timer&gt;
+   &lt;&#47;http&gt;
+&lt;&#47;speed&gt;
+   </pre>
+   </td>
+</tr>
+<tr>
+   <td>
+   <hr></hr>
+The timer tag will add a JMeter Gaussian Timer to either a test or an http element.  This tag as 3 child elements.</br></br>
+1.)&lt;name&gt;&lt;&#47;name&gt;: This is the timer's name.</br>
+2.)&lt;delay&gt;&lt;&#47;delay&gt;: Number of milliseconds to pause in addition to the random delay.</br>
+3.)&lt;range&gt;&lt;&#47;range&gt;: Deviation in milliseconds.</br>
+   </td>
+</tr>
+</table>
+</p>
+</body>
+</html>
