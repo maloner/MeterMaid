@@ -37,11 +37,20 @@
 
      GenMeter.rb is a simple command line script for using the MeterMaid      
      class.                                                                   
-     [bash]: ruby GenMeter.rb --help GenMeter.rb Usage: GenMeter.rb           
-     --inputfile="mytest.xml" --outputfile="new-jmeter-test.jmx" Required     
-     Flags: --inputfile: This is the input simple MeterMaid XML file.         
-     --outputfile: This is the newly created Jmeter test. Optional Flags:     
-     --help: Prints this message and exits.                                   
+     
+     [bash]: ruby GenMeter.rb --help 
+     
+     GenMeter.rb 
+     Usage: GenMeter.rb
+        --inputfile="mytest.xml" 
+        --outputfile="new-jmeter-test.jmx" 
+        
+     Required Flags: 
+         --inputfile: This is the input simple MeterMaid XML file.         
+         --outputfile: This is the newly created Jmeter test. 
+         
+     Optional Flags:
+         --help: Prints this message and exits.
 
      ----------------------------------------------------------------------
 
