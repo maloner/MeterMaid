@@ -1,0 +1,25 @@
+<speed>
+   <testinfo>
+      <name>Google Test</name>
+      <assertlog>/tmp/googleassert.log</assertlog>
+      <asserttype>AssertionVisualizer</asserttype>
+   </testinfo>
+
+   <http>
+      <name>Google Home page</name>
+      <domain>google.com</domain>
+      <path>/&amp;test=1</path>
+      <method>GET</method>
+
+      <asserts type="contains">
+         <name>My assert Name</name>
+         <assert>About\s+Google</assert>
+      </asserts>
+
+      <results>
+         <result_file>/tmp/summery-1.log</result_file>
+         <type>ViewResultsFullVisualizer</type>
+         <name>My Summery Results</name>
+      </results>
+   </http>
+</speed>
