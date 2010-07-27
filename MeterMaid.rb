@@ -21,6 +21,11 @@ require 'libxml'
 require 'date'
 
 ###############################################################################
+# Global Data:
+###############################################################################
+   METER_MAID_VERSION = 1.0
+
+###############################################################################
 # MeterMaid: Class
 #     This class reads a simplified jmeter XML file and generates a valid
 #     jmeter jmx file.
