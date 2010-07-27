@@ -14,11 +14,6 @@
 ###############################################################################
 
 ###############################################################################
-# Global Data:
-###############################################################################
-   METER_MAID_VERSION = 1.0
-
-###############################################################################
 # Needed ruby libs:
 ###############################################################################
 require 'rubygems'
@@ -135,25 +130,8 @@ class MeterMaid
                data['stack'].push( {'loop' => loop_kids} )
             when "controller"
                next if (!node.children?)
- 
-               ctrl_kids = node.children()
-               ctrl_hash = {
-                  'line_number' => "#{node.line_num}",
-                  'stack' => []
-               }
 
-               ctrl_kids.each do |ctrl|
-                  next if (ctrl.name =~ /text/)
-
-                  if (ctrl.name =~ /http/i)
-                     tmp = ProcessHttpElement(ctrl)
-                     ctrl_hash['stack'].push( {'http' => tmp} )
-                  elsif(ctrl.name =~ /loop/i)
-                     ctrl_hash['stack'].push( {'loop' => ctrl} )
-                  else
-                     ctrl_hash["#{ctrl.name}"] = "#{SafeStr(ctrl.content)}"
-                  end
-               end
+               ctrl_hash = ProcessControllerElement(node) 
                data['stack'].push( {'controller' => ctrl_hash} )
             when "testinfo"
                kids = node.children()
@@ -258,6 +236,60 @@ XML
       return timer_str
    end
    private :GenerateTimer
+
+###############################################################################
+# ProcessControllerElement -- Method
+#     This method processes a Controller element from the XML test.
+#
+# Input:
+#     node: This is a test node from the XML dom.
+#
+# Output:
+#     Returns a hash containing all the data from the controller element.
+#
+###############################################################################
+   def ProcessControllerElement(node)
+      ctrl_kids = node.children()
+      ctrl_hash = {
+         'line_number' => "#{node.line_num}",
+         'stack' => [],
+         'csv_stack' => []
+      }
+      ctrl_kids.each do |ctrl|
+         next if (ctrl.name =~ /text/)
+
+         if (ctrl.name =~ /http/i)
+            tmp = ProcessHttpElement(ctrl)
+            ctrl_hash['stack'].push( {'http' => tmp} )
+         elsif(ctrl.name =~ /loop/i)
+            ctrl_hash['stack'].push( {'loop' => ctrl} )
+         elsif(ctrl.name =~/controller/i)
+            tmp = ProcessControllerElement(ctrl)
+            ctrl_hash['stack'].push( {'controller' => tmp} )
+         elsif(ctrl.name =~ /script/i)
+            next if (!ctrl.children?)
+               
+            script_hash = Hash.new()
+            script_kids = ctrl.children()
+            script_kids.each do |script|
+               next if (script.name =~ /text/i)
+               script_hash["#{script.name}"] = "#{SafeStr(script.content)}"
+               script_hash['line_number'] = "#{node.line_num}"
+               tmp = ProcessScripts(script_hash)
+               tmp = GetDataFromTest(tmp)
+               ctrl_hash['stack'].concat(tmp['stack'])
+               ctrl_hash['csv_stack'].concat(tmp['csv_stack'])
+            end
+
+         else
+            ctrl_hash["#{ctrl.name}"] = "#{SafeStr(ctrl.content)}"
+         end
+      end
+
+      return ctrl_hash
+   end
+   private :ProcessControllerElement
+
 
 ###############################################################################
 # ProcessScripts -- Method
@@ -442,8 +474,8 @@ XML
         <name>ThroughputController.percentThroughput</name>
       </FloatProperty>
       <boolProp name="ThroughputController.perThread">true</boolProp>
-      <intProp name="ThroughputController.style">0</intProp>
-      <intProp name="ThroughputController.maxThroughput">#{precentI}</intProp>
+      <intProp name="ThroughputController.style">1</intProp>
+      <intProp name="ThroughputController.maxThroughput">1</intProp>
     </ThroughputController>
     <hashTree> <!-- start ThroughputController hashTree -->
 XML
@@ -458,6 +490,11 @@ XML
             loop_str = GenerateLoop(item['loop'])
             if (loop_str != nil)
                new_ctrl << loop_str
+            end
+         elsif (item.key?('controller'))
+            controller_str = GenerateController(item['controller'])
+            if (controller_str != nil)
+               new_ctrl << controller_str
             end
          end
       end
